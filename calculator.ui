@@ -808,7 +808,7 @@ notes</string>
            </font>
           </property>
           <property name="text">
-           <string>abs()</string>
+           <string>abs</string>
           </property>
          </widget>
         </item>

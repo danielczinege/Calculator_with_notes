@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'calculator.ui'
+# Form implementation generated from reading ui file '.\calculator.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.9
 #
@@ -547,7 +547,7 @@ class Ui_MainWindow(object):
         self.del_button.setText(_translate("MainWindow", "Del"))
         self.erase_button.setText(_translate("MainWindow", "C"))
         self.zero_button.setText(_translate("MainWindow", "0"))
-        self.abs_button.setText(_translate("MainWindow", "abs()"))
+        self.abs_button.setText(_translate("MainWindow", "abs"))
         self.euler_button.setText(_translate("MainWindow", "e"))
         self.multiply_button.setText(_translate("MainWindow", "x"))
         self.equal_button.setText(_translate("MainWindow", "="))

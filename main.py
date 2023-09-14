@@ -10,7 +10,6 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-
         self.ui.zero_button.clicked.connect(self.writing_buttons)
         self.ui.one_button.clicked.connect(self.writing_buttons)
         self.ui.two_button.clicked.connect(self.writing_buttons)
@@ -59,6 +58,7 @@ class MainWindow(QMainWindow):
         arctan_action.triggered.connect(self.writing_buttons)
 
         self.ui.trig_button.setMenu(trig_menu)
+
 
         self.ui.invert_button.clicked.connect(self.invert_action)
 
@@ -152,7 +152,7 @@ class MainWindow(QMainWindow):
             if decimal_point_found and current_text[i] == ',':
                 return
 
-            decimal_point_found = current_text[i] == ','
+            decimal_point_found = decimal_point_found or current_text[i] == ','
             i -= 1
 
         if end != i:
@@ -183,7 +183,6 @@ class MainWindow(QMainWindow):
             return
 
         i = len(old_text) - 1
-        decimal_point_found = False
 
         while i >= 0 and old_text[i].isdigit():
             i -= 1

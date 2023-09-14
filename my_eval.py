@@ -155,6 +155,12 @@ def correct_infix_neighbors(tokens: List[Token], i: int) -> bool:
            (i + 1 < len(tokens) and (tokens[i + 1].type == Type.FUNCTION and tokens[i + 1].value not in INFIX_FUNCTIONS
                           or tokens[i + 1].type == Type.NUMBER or tokens[i + 1].type == Type.OPEN_PAR))
 
+def correct_minus(tokens: List[Token], i: int) -> bool:
+    return (i - 1 < 0 or (tokens[i - 1].value == 'pi' or tokens[i - 1].value == 'e' or tokens[i - 1].type == Type.OPEN_PAR
+                          or tokens[i - 1].type == Type.NUMBER or tokens[i - 1].type == Type.CLOSE_PAR)) and \
+           (i + 1 < len(tokens) and (tokens[i + 1].type == Type.FUNCTION and tokens[i + 1].value not in INFIX_FUNCTIONS
+                          or tokens[i + 1].type == Type.NUMBER or tokens[i + 1].type == Type.OPEN_PAR))
+
 def correct_function_neighbors(tokens: List[Token], i: int) -> bool:
     return (i - 1 < 0 or (tokens[i - 1].value != 'pi' and tokens[i - 1].value != 'e'
                           and tokens[i - 1].type != Type.NUMBER and tokens[i - 1].type != Type.CLOSE_PAR)) and \
@@ -181,6 +187,11 @@ def correct_tokenized_expression(tokens: List[Token]) -> bool:
                 return False
 
             open_brackets -= 1
+            continue
+
+        if token_type == Type.MINUS:
+            if not correct_minus(tokens, i):
+                return False
             continue
 
         if token_type == Type.NUMBER or value == 'pi' or value == 'e':

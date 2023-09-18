@@ -273,7 +273,7 @@ def build_ast(tokens: List[Token], begin: int, start_prec: int) -> Tuple[Optiona
             root = Ast_node(tokens[i])
             argument, i = build_ast(tokens, i + 1, Prec.FUNC)
             root.children.append(argument)
-            if start_prec == Prec.FUNC or start_prec.value >= PRECEDENCE[tokens[i].type].value:
+            if start_prec == Prec.FUNC or (start_prec != Prec.PARS and start_prec.value >= PRECEDENCE[tokens[i].type].value):
                 return root, i
             continue
 

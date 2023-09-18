@@ -26,6 +26,8 @@ print_tokens(tokenize_expr("1+ 2 - ( 3 + 4*5 * 6^(6+6)) - sin cos 565,4123 + ln 
 
 print_tokens(tokenize_expr("1,0 /pi + 0,121/           (e)+     6"))
 
+print_tokens(tokenize_expr("- (1 + 2) ^ 2 ^ (sin cos tan 4 * 5)"))
+
 print("Testing correct_tokenized_expression:")
 for expr in ["- 1", "1+ 2 - ( 3 + 4*5 * 6^(6+6)) - sin cos 565,4123 + ln (5,2 / 66,3)", "(3) + 4*(sin cos (e^((3)- 5 mod 6) + 3 log_base (pi)))", "sin (pi + cos e)",
              "-sin (-6 - 3-(-4^2)) - cos (-5)", "3 log_base sin 5"]:
@@ -65,6 +67,7 @@ expr2 = "3 + 4 * 2 * 5 ^ 6 ^ (6 + 1) * 8 * 9 + 10"
 expr3 = "4* sin (5) ^ 6^8*7"
 expr4 = "3 + 4 ^ 2 / (1 + 2 * sin (2 * 5^2^3 * 4 + 3 mod 2 mod 9 * 5 + 3) ^ (-2 - 1) * 3) * 5 ^ 3 - 1"
 expr5 = "sin 7 log_base (5 + 5 yth_root 6) yth_root 5"
+expr6 = "- (1 + 2,3) ^ 2,02 ^ (sin cos tan 456,45896 * 5,326)"
 
 correct_solutions: Dict[str, str] = {expr1 : 
 """+
@@ -186,6 +189,21 @@ correct_solutions: Dict[str, str] = {expr1 :
                                 5
                                 6
         5
+""", expr6 :
+"""-
+        0
+        ^
+                +
+                        1
+                        2,3
+                ^
+                        2,02
+                        *
+                                sin
+                                        cos
+                                                tan
+                                                        456,45896
+                                5,326
 """
 }
 
@@ -199,7 +217,7 @@ print()
 print("#########################")
 print("Testing building the AST:")
 
-for expr in [expr1, expr2, expr3, expr4, expr5]:
+for expr in correct_solutions.keys():
     result: List[str] = []
     ast_to_string(build_ast(tokenize_expr(expr), 0, Prec.MIN)[0], "", result)
     res = "".join(result)

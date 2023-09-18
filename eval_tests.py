@@ -68,6 +68,8 @@ expr3 = "4* sin (5) ^ 6^8*7"
 expr4 = "3 + 4 ^ 2 / (1 + 2 * sin (2 * 5^2^3 * 4 + 3 mod 2 mod 9 * 5 + 3) ^ (-2 - 1) * 3) * 5 ^ 3 - 1"
 expr5 = "sin 7 log_base (5 + 5 yth_root 6) yth_root 5"
 expr6 = "- (1 + 2,3) ^ 2,02 ^ (sin cos tan 456,45896 * 5,326)"
+expr7 = "(-sin pi - e) * tan (-e + pi / 2) ^ ((-pi + 1) / 3)"
+expr8 = "5 + cos (sin (9 / (3 * (2 - sin arcsin 5 / (42 + 3)) - 2) ^ 4) + 6)"
 
 correct_solutions: Dict[str, str] = {expr1 : 
 """+
@@ -204,6 +206,54 @@ correct_solutions: Dict[str, str] = {expr1 :
                                                 tan
                                                         456,45896
                                 5,326
+""", expr7 :
+"""*
+        -
+                -
+                        0
+                        sin
+                                pi
+                e
+        ^
+                tan
+                        +
+                                -
+                                        0
+                                        e
+                                /
+                                        pi
+                                        2
+                /
+                        +
+                                -
+                                        0
+                                        pi
+                                1
+                        3
+""", expr8 :
+"""+
+        5
+        cos
+                +
+                        sin
+                                /
+                                        9
+                                        ^
+                                                -
+                                                        *
+                                                                3
+                                                                -
+                                                                        2
+                                                                        /
+                                                                                sin
+                                                                                        arcsin
+                                                                                                5
+                                                                                +
+                                                                                        42
+                                                                                        3
+                                                        2
+                                                4
+                        6
 """
 }
 

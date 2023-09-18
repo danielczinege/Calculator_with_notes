@@ -1,5 +1,6 @@
 from enum import Enum
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Tuple
+from math import sin, cos, tan, asin, acos, atan, log, pow, pi, e
 
 class Type(Enum):
     NUMBER = 0
@@ -208,6 +209,94 @@ def correct_tokenized_expression(tokens: List[Token]) -> bool:
             return False
 
     return open_brackets == 0
+
+def get_num_value(value: str) -> Tuple[Optional[int], Optional[float]]:
+    if value == 'pi':
+        return None, pi
+
+    if value == 'e':
+        return None, e
+
+    if value.find(',') == -1:
+        return int(value), None
+
+    return None, float(value.replace(',', '.'))
+
+
+class Ast_node():
+    def __init__(self, token: Token) -> None:
+        self.token = token
+        self.number: Optional[int] = None
+        self.decimal_number: Optional[float] = None
+
+        if token.type == Type.NUMBER or token.value == 'pi' or token.value == 'e':
+            self.number, self.decimal_number = get_num_value(token.value)
+
+        self.children: List['Ast_node'] = []
+
+
+def build_ast(tokens: List[Token], begin: int, start_prec: int) -> Tuple[Optional[Ast_node], int]:
+    root: Optional[Ast_node] = None
+    i = begin
+
+    while i < len(tokens):
+        if tokens[i].type == Type.OPEN_PAR:
+            root, i = build_ast(tokens, i + 1, Prec.PARS)
+            i += 1
+
+            if start_prec == PRECEDENCE[Type.FUNCTION] or i == len(tokens)\
+                    or PRECEDENCE[tokens[i].type].value < start_prec.value \
+                    or (start_prec != Prec.POWER and PRECEDENCE[tokens[i].type].value == start_prec.value):
+                return root, i
+
+            continue
+
+        if tokens[i].type == Type.CLOSE_PAR:
+            return root, i
+
+        if tokens[i].type == Type.NUMBER or tokens[i].value == 'pi' or tokens[i].value == 'e':
+            if i == 0 or tokens[i - 1].type == Type.OPEN_PAR:
+                root = Ast_node(tokens[i])
+                i += 1
+                continue
+
+            if tokens[i - 1].type == Type.FUNCTION or i + 1 == len(tokens) or tokens[i + 1].type == Type.CLOSE_PAR \
+                    or PRECEDENCE[tokens[i + 1].type].value < start_prec.value \
+                    or (start_prec != Prec.POWER and PRECEDENCE[tokens[i + 1].type].value == start_prec.value):
+                return  Ast_node(tokens[i]), i + 1
+
+            root = Ast_node(tokens[i])
+            i += 1
+            continue
+
+        if tokens[i].type == Type.FUNCTION and tokens[i].value not in INFIX_FUNCTIONS:
+            root = Ast_node(tokens[i])
+            argument, i = build_ast(tokens, i + 1, Prec.FUNC)
+            root.children.append(argument)
+            if start_prec == Prec.FUNC or start_prec.value >= PRECEDENCE[tokens[i].type].value:
+                return root, i
+            continue
+
+        # Now are infix functions and operators +, -, *, /, ^ left
+
+        token_prec = PRECEDENCE[tokens[i].type]
+        operator = Ast_node(tokens[i])
+
+        if tokens[i].type == Type.MINUS and (i == 0 or tokens[i - 1].type == Type.OPEN_PAR):
+            operator.children.append(Ast_node(Token('0', Type.NUMBER)))
+        else:
+            operator.children.append(root)
+
+        right, i = build_ast(tokens, i + 1, token_prec)
+        operator.children.append(right)
+
+        if start_prec == token_prec or start_prec != Prec.MIN and start_prec != Prec.PARS \
+                and (i >= len(tokens) or start_prec.value >= PRECEDENCE[tokens[i].type].value):
+            return operator, i
+
+        root = operator
+
+    return root, i
 
 def evaluation(expression: str) -> str:
     pass

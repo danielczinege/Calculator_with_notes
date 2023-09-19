@@ -1,15 +1,16 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QToolButton, QMenu
-from PyQt5.QtCore import QFile
+from PyQt5.QtCore import QFile, Qt
 from calculator_gui import Ui_MainWindow
 
 import pyperclip
+
+from my_eval import evaluation
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-
 
         self.ui.zero_button.clicked.connect(self.writing_buttons)
         self.ui.one_button.clicked.connect(self.writing_buttons)
@@ -60,6 +61,7 @@ class MainWindow(QMainWindow):
 
         self.ui.trig_button.setMenu(trig_menu)
 
+
         self.ui.invert_button.clicked.connect(self.invert_action)
 
         self.ui.decimal_point_button.clicked.connect(self.decimal_point)
@@ -70,6 +72,12 @@ class MainWindow(QMainWindow):
 
         self.ui.root_button.clicked.connect(self.writing_buttons)
         self.ui.log_button.clicked.connect(self.writing_buttons)
+
+        self.ui.equal_button.clicked.connect(self.evaluate)
+        self.ui.input_line.returnPressed.connect(self.evaluate)
+
+        self.ui.last_result_label.setTextInteractionFlags(self.ui.last_result_label.textInteractionFlags() | Qt.TextSelectableByMouse)
+        self.ui.last_result_label.setCursor(Qt.IBeamCursor)
 
     def writing_buttons(self):
         """
@@ -152,7 +160,7 @@ class MainWindow(QMainWindow):
             if decimal_point_found and current_text[i] == ',':
                 return
 
-            decimal_point_found = current_text[i] == ','
+            decimal_point_found = decimal_point_found or current_text[i] == ','
             i -= 1
 
         if end != i:
@@ -183,7 +191,6 @@ class MainWindow(QMainWindow):
             return
 
         i = len(old_text) - 1
-        decimal_point_found = False
 
         while i >= 0 and old_text[i].isdigit():
             i -= 1
@@ -212,6 +219,16 @@ class MainWindow(QMainWindow):
             self.ui.square_button.setText("x²")
             self.ui.log_button.setText("ln")
 
+    def evaluate(self):
+        expression = self.ui.input_line.text()
+        if expression == "":
+            return
+
+        result = evaluation(expression)
+        self.ui.last_result_label.setText(result)
+        self.ui.input_line.setText(result)
+
+        #TODO - history
 
 if __name__ == "__main__":
     app = QApplication([])

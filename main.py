@@ -1,8 +1,10 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QToolButton, QMenu
-from PyQt5.QtCore import QFile
+from PyQt5.QtCore import QFile, Qt
 from calculator_gui import Ui_MainWindow
 
 import pyperclip
+
+from my_eval import evaluation
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -70,6 +72,12 @@ class MainWindow(QMainWindow):
 
         self.ui.root_button.clicked.connect(self.writing_buttons)
         self.ui.log_button.clicked.connect(self.writing_buttons)
+
+        self.ui.equal_button.clicked.connect(self.evaluate)
+        self.ui.input_line.returnPressed.connect(self.evaluate)
+
+        self.ui.last_result_label.setTextInteractionFlags(self.ui.last_result_label.textInteractionFlags() | Qt.TextSelectableByMouse)
+        self.ui.last_result_label.setCursor(Qt.IBeamCursor)
 
     def writing_buttons(self):
         """
@@ -211,6 +219,16 @@ class MainWindow(QMainWindow):
             self.ui.square_button.setText("x²")
             self.ui.log_button.setText("ln")
 
+    def evaluate(self):
+        expression = self.ui.input_line.text()
+        if expression == "":
+            return
+
+        result = evaluation(expression)
+        self.ui.last_result_label.setText(result)
+        self.ui.input_line.setText(result)
+
+        #TODO - history
 
 if __name__ == "__main__":
     app = QApplication([])

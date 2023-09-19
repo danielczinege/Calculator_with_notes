@@ -1,6 +1,6 @@
 from enum import Enum
-from typing import Dict, List, Optional, Set, Tuple
-from math import sin, cos, tan, asin, acos, atan, log, pow, pi, e
+from typing import Dict, List, Optional, Set, Tuple, Union
+from math import sin, cos, tan, asin, acos, atan, log, pow, pi, e, sqrt
 
 class Type(Enum):
     NUMBER = 0
@@ -234,8 +234,11 @@ class Ast_node():
 
         self.children: List['Ast_node'] = []
 
-
 def build_ast(tokens: List[Token], begin: int, start_prec: int) -> Tuple[Optional[Ast_node], int]:
+    """
+    Creates an AST from a tokenized valid expression (as evaluated by correct_tokenized_expression) and\n
+    returns a tuple, where first coordinate is the root Ast_node of the expression and the second is index in tokens list.
+    """
     root: Optional[Ast_node] = None
     i = begin
 
@@ -298,5 +301,173 @@ def build_ast(tokens: List[Token], begin: int, start_prec: int) -> Tuple[Optiona
 
     return root, i
 
+def root(x: float, yth_root: Union[float, int]) -> Tuple[float, str]:
+    if isinstance(yth_root, int) and yth_root % 2 == 1:
+        if x < 0:
+            return - pow(-x, 1 / yth_root), ""
+
+        return pow(x, 1 / yth_root), ""
+
+    if x >= 0:
+        if yth_root == 2:
+            return sqrt(x), ""
+
+        return pow(x, yth_root), ""
+
+    return 0, "Negative number in a root."
+
+def eval_sroot(x: float) -> Tuple[float, str]:
+    return root(x, 2)
+
+def ln(x: float) -> Tuple[float, str]:
+    if x > 0:
+        return log(x), ""
+
+    return 0, "Non-positive number in ln."
+
+def eval_log(x: float, base: float) -> Tuple[float, str]:
+    if x <= 0:
+        return 0, "Non-positive number in log."
+
+    return log(x, base), ""
+
+def eval_asin(x: float) -> Tuple[float, str]:
+    if x < -1 or x > 1:
+        return 0, "asin value out of [-1, 1]"
+
+    return asin(x), ""
+
+def eval_acos(x: float) -> Tuple[float, str]:
+    if x < -1 or x > 1:
+        return 0, "acos value out of [-1, 1]"
+
+    return acos(x), ""
+
+def eval_atan(x: float) -> Tuple[float, str]:
+    if x < -pi / 2 or x > pi / 2:
+        return 0, "atan value out of [-pi/2, pi/2]"
+
+    return atan(x), ""
+
+def eval_sin(x: float) -> Tuple[float, str]:
+    return sin(x), ""
+
+def eval_cos(x: float) -> Tuple[float, str]:
+    return cos(x), ""
+
+def eval_tan(x: float) -> Tuple[float, str]:
+    return tan(x), ""
+
+def eval_abs(x: Union[int, float]) -> Tuple[Union[int, float], str]:
+    return abs(x), ""
+
+def eval_div(x: float, y: float) -> Tuple[float, str]:
+    if y == 0:
+        return 0, "Division by zero."
+
+    return x / y, ""
+
+def eval_pow(x: Union[int, float], y: Union[int, float]) -> Tuple[float, str]:
+    if x == 0 and y == 0:
+        return 0, "Undifined"
+
+    if isinstance(y, int):
+        if y >= 0:
+            return pow(x, y), ""
+        if x == 0:
+            return 0, "Division by zero"
+        
+        return pow(x, y), ""
+
+    if x <= 0:
+        return 0, "non_integer power of negative number"
+
+    return pow(x, y), ""
+
+UNARY_FUNCTIONS = {"sroot" : eval_sroot,
+                   "ln" : ln,
+                   "abs" : eval_abs,
+                   "sin" : eval_sin,
+                   "cos" : eval_cos,
+                   "tan" : eval_tan,
+                   "arcsin" : eval_asin,
+                   "arccos" : eval_acos,
+                   "arctan" : eval_atan}
+
+def eval_unary_function(root: Ast_node) -> Tuple[Union[int, float], str]:
+    x, error = evaluate_ast(root.children[0])
+
+    if error != "":
+        return x, error
+
+    return UNARY_FUNCTIONS[root.token.value](x)
+
+BINARY_FUNCTIONS = {"log_base" : eval_log,
+                    "yth_root" : root,
+                    "/" : eval_div,
+                    "^" : eval_pow}
+
+def eval_binary_function(root: Ast_node) -> Tuple[Union[int, float], str]:
+    x, error = evaluate_ast(root.children[0])
+
+    if error != "":
+        return x, error
+
+    y, error = evaluate_ast(root.children[1])
+
+    if error != "":
+        return y, error
+
+    if root.token.value == "mod":
+        if y == 0:
+            return 0, "Right operand of mod is 0."
+
+        if not isinstance(x, int) or not isinstance(y, int):
+            return 0, "Modulus with non-integer arguments"
+
+        return x % y, ""
+
+    if root.token.value == "+":
+        return x + y, ""
+
+    if root.token.value == "-":
+        return x - y, ""
+
+    if root.token.value == "*":
+        return x * y, ""
+
+    return BINARY_FUNCTIONS[root.token.value](x, y)
+
+def evaluate_ast(root: Ast_node) -> Tuple[Union[int, float], str]:
+    if root.number is not None:
+        return root.number, ""
+
+    if root.decimal_number is not None:
+        return root.decimal_number, ""
+
+    if len(root.children) == 1:
+        return eval_unary_function(root)
+
+    return eval_binary_function(root)
+
 def evaluation(expression: str) -> str:
-    pass
+    """
+    Evaluates a given math expression and returns the result, if it is not a valid expression returns string
+    containing the error.
+    """
+    if expression == "":
+        return "0"
+
+    tokenized = tokenize_expr(expression)
+
+    if not correct_tokenized_expression(tokenized):
+        return "invalid expression"
+
+    ast_root, _ = build_ast(tokenized, 0, Prec.MIN)
+
+    result, error = evaluate_ast(ast_root)
+
+    if error != "":
+        return error
+
+    return str(result).replace(".", ",")

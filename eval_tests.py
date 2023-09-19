@@ -1,5 +1,5 @@
 from typing import List, Optional, Dict
-from my_eval import tokenize_expr, Token, correct_tokenized_expression, build_ast, Prec, Ast_node
+from my_eval import tokenize_expr, Token, correct_tokenized_expression, build_ast, Prec, Ast_node, evaluation
 
 def print_tokens(tokens: Optional[List[Token]]) -> None:
     if tokens is None:
@@ -278,3 +278,15 @@ for expr in correct_solutions.keys():
         print("NOK")
 
 print("\n###############################\n")
+
+EXPRESSIONS_ANSWERS = {"1 - (2 + 3)" : "-4",
+                       "sin (pi / 2) + (5 log_base 25 + 3 mod 2)" : "2,5",
+                       "arcsin (-2,5)" : "asin value out of [-1, 1]"}
+
+print("Testing evaluation:")
+
+for expr in EXPRESSIONS_ANSWERS.keys():
+    if evaluation(expr) == EXPRESSIONS_ANSWERS[expr]:
+        print("OK")
+    else:
+        print("NOK")

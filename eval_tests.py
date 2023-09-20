@@ -281,7 +281,8 @@ print("\n###############################\n")
 
 EXPRESSIONS_ANSWERS = {"1 - (2 + 3)" : "-4",
                        "sin (pi / 2) + (5 log_base 25 + 3 mod 2)" : "2,5",
-                       "arcsin (-2,5)" : "asin value out of [-1, 1]"}
+                       "arcsin (-2,5)" : "asin value out of [-1, 1]",
+                       "5 - abs ( sroot ( 5 log_base 3 ) * arccos( -1 + ( 1 / ( 2,36 * e - 3 ) ) ) / ( arctan ( pi / 2 - 0,26 ) ) - 3)" : "4,896961063400804"}
 
 print("Testing evaluation:")
 

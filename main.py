@@ -78,6 +78,7 @@ class MainWindow(QMainWindow):
 
         self.ui.last_result_label.setTextInteractionFlags(self.ui.last_result_label.textInteractionFlags() | Qt.TextSelectableByMouse)
         self.ui.last_result_label.setCursor(Qt.IBeamCursor)
+        self.ui.last_result_label.setStyleSheet("font-size: 12pt;")
 
     def writing_buttons(self):
         """

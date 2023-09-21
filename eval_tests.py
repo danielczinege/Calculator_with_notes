@@ -40,7 +40,7 @@ for expr in ["- 1", "1+ 2 - ( 3 + 4*5 * 6^(6+6)) - sin cos 565,4123 + ln (5,2 / 
 print()
 
 for expr in ["arcsin", "sin cos + ()", "sin cos + 5", "sin (5 + cos)", "6 mod (sin 6 cos 8)", "(3) + 4(sin cos (e^((3)- 5 mod 6) + 3 log_base (pi)))",
-             "-(-5) - sin"]:
+             "-(-5) - sin", "asdlkj565"]:
     tokenized = tokenize_expr(expr)
     if tokenized is not None and correct_tokenized_expression(tokenized):
         print("NOK")

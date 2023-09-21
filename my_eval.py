@@ -460,7 +460,7 @@ def evaluation(expression: str) -> str:
 
     tokenized = tokenize_expr(expression)
 
-    if not correct_tokenized_expression(tokenized):
+    if tokenized is None or not correct_tokenized_expression(tokenized):
         return "invalid expression"
 
     ast_root, _ = build_ast(tokenized, 0, Prec.MIN)

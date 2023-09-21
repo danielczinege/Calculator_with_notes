@@ -80,6 +80,9 @@ class MainWindow(QMainWindow):
         self.ui.last_result_label.setCursor(Qt.IBeamCursor)
         self.ui.last_result_label.setStyleSheet("font-size: 12pt;")
 
+        self.ui.history_button.setCheckable(True)
+        self.ui.history_button.clicked.connect(self.show_history)
+
     def writing_buttons(self):
         """
         This method determins which button made the signal and then writes the coresponding character to input_line.
@@ -230,6 +233,12 @@ class MainWindow(QMainWindow):
         self.ui.input_line.setText(result)
 
         #TODO - history
+
+    def show_history(self, checked):
+        if checked:
+            self.ui.history_panel.setCurrentIndex(1)
+        else:
+            self.ui.history_panel.setCurrentIndex(0)
 
 if __name__ == "__main__":
     app = QApplication([])

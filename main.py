@@ -83,6 +83,10 @@ class MainWindow(QMainWindow):
         self.ui.history_button.setCheckable(True)
         self.ui.history_button.clicked.connect(self.show_history)
 
+        self.ui.history.setCursor(Qt.IBeamCursor)
+
+        self.ui.clear_history_button.clicked.connect(self.history_clear)
+
     def writing_buttons(self):
         """
         This method determins which button made the signal and then writes the coresponding character to input_line.
@@ -232,13 +236,17 @@ class MainWindow(QMainWindow):
         self.ui.last_result_label.setText(result)
         self.ui.input_line.setText(result)
 
-        #TODO - history
+        old_history = self.ui.history.toPlainText()
+        self.ui.history.setText(expression + " =\n" + result + "\n" + "_" * 50 + "\n" + old_history)
 
     def show_history(self, checked):
         if checked:
             self.ui.history_panel.setCurrentIndex(1)
         else:
             self.ui.history_panel.setCurrentIndex(0)
+
+    def history_clear(self):
+        self.ui.history.setText("")
 
 if __name__ == "__main__":
     app = QApplication([])

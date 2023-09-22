@@ -511,9 +511,9 @@ class Ui_MainWindow(object):
         self.gridLayout_9.setContentsMargins(0, -1, -1, -1)
         self.gridLayout_9.setSpacing(0)
         self.gridLayout_9.setObjectName("gridLayout_9")
-        self.textBrowser = QtWidgets.QTextBrowser(self.history_page)
-        self.textBrowser.setObjectName("textBrowser")
-        self.gridLayout_9.addWidget(self.textBrowser, 2, 0, 1, 1)
+        self.history = QtWidgets.QTextBrowser(self.history_page)
+        self.history.setObjectName("history")
+        self.gridLayout_9.addWidget(self.history, 2, 0, 1, 1)
         self.horizontalWidget = QtWidgets.QWidget(self.history_page)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
@@ -597,7 +597,7 @@ class Ui_MainWindow(object):
         self.equal_button.setText(_translate("MainWindow", "="))
         self.more_button.setText(_translate("MainWindow", "2ⁿᵈ"))
         self.invert_button.setText(_translate("MainWindow", "1/x"))
-        self.textBrowser.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+        self.history.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "hr { height: 1px; border-width: 0; }\n"

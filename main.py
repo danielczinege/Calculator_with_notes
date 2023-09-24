@@ -1,6 +1,6 @@
 from typing import Optional
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QToolButton, QMenu
+from PyQt5.QtWidgets import QApplication, QMainWindow, QToolButton, QMenu, QStatusBar, QTabWidget
 from PyQt5.QtCore import QFile, Qt, QPropertyAnimation, QRect, QEasingCurve
 
 import pyperclip
@@ -14,6 +14,12 @@ class NotesWindow(QMainWindow):
         super().__init__()
         self.ui = Notes_window()
         self.ui.setupUi(self)
+
+        self.ui.tabWidget.setTabPosition(QTabWidget.South)
+
+        self.setStatusBar(QStatusBar(self))
+        menu = self.menuBar()
+        file_menu = menu.addMenu("&File")
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -263,6 +269,7 @@ class MainWindow(QMainWindow):
     def open_notes(self):
         if self.note_window is None or not self.note_window.isVisible():
             self.note_window = NotesWindow()
+            self.note_window.setWindowTitle("Notes")
 
         if self.note_window.isMinimized():
             self.note_window.showNormal()

@@ -1,16 +1,27 @@
+from typing import Optional
+
 from PyQt5.QtWidgets import QApplication, QMainWindow, QToolButton, QMenu
 from PyQt5.QtCore import QFile, Qt, QPropertyAnimation, QRect, QEasingCurve
-from calculator_gui import Ui_MainWindow
 
 import pyperclip
 
+from calculator_gui import Ui_MainWindow
+from notes_gui import Ui_MainWindow as Notes_window
 from my_eval import evaluation
+
+class NotesWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.ui = Notes_window()
+        self.ui.setupUi(self)
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
+        self.note_window: Optional[Notes_window] = None
 
         self.ui.zero_button.clicked.connect(self.writing_buttons)
         self.ui.one_button.clicked.connect(self.writing_buttons)
@@ -86,6 +97,8 @@ class MainWindow(QMainWindow):
         self.ui.history.setCursor(Qt.IBeamCursor)
 
         self.ui.clear_history_button.clicked.connect(self.history_clear)
+
+        self.ui.notes_button.clicked.connect(self.open_notes)
 
     def writing_buttons(self):
         """
@@ -246,6 +259,18 @@ class MainWindow(QMainWindow):
 
     def history_clear(self):
         self.ui.history.setText("")
+
+    def open_notes(self):
+        if self.note_window is None or not self.note_window.isVisible():
+            self.note_window = NotesWindow()
+
+        if self.note_window.isMinimized():
+            self.note_window.showNormal()
+
+        notes_window_x = max(self.geometry().left() - self.note_window.width() - 5, 0)
+        notes_window_y = self.geometry().top()
+        self.note_window.setGeometry(notes_window_x, notes_window_y, self.note_window.width(), self.note_window.height())
+        self.note_window.show()
 
 if __name__ == "__main__":
     app = QApplication([])

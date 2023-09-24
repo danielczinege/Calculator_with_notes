@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QToolButton, QMenu
-from PyQt5.QtCore import QFile, Qt
+from PyQt5.QtCore import QFile, Qt, QPropertyAnimation, QRect, QEasingCurve
 from calculator_gui import Ui_MainWindow
 
 import pyperclip
@@ -237,13 +237,12 @@ class MainWindow(QMainWindow):
         self.ui.input_line.setText(result)
 
         old_history = self.ui.history.toPlainText()
-        self.ui.history.setText(expression + " =\n" + result + "\n" + "_" * 50 + "\n" + old_history)
+        self.ui.history.setText(expression + " =\n" + result + "\n" + "_" * 48 + "\n" + old_history)
 
     def show_history(self, checked):
-        if checked:
-            self.ui.history_panel.setCurrentIndex(1)
-        else:
-            self.ui.history_panel.setCurrentIndex(0)
+        site_index = 1 if checked else 0
+
+        self.ui.history_panel.setCurrentIndex(site_index)
 
     def history_clear(self):
         self.ui.history.setText("")

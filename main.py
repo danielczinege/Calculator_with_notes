@@ -1,6 +1,17 @@
 from typing import Optional
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QToolButton, QMenu, QStatusBar, QTabWidget
+from PyQt5.QtWidgets import (QApplication, 
+                             QMainWindow,
+                             QToolButton, 
+                             QMenu, 
+                             QStatusBar, 
+                             QTabWidget, 
+                             QAction, 
+                             QWidget,
+                             QPushButton,
+                             QTextEdit,
+                             QVBoxLayout)
+
 from PyQt5.QtCore import QFile, Qt, QPropertyAnimation, QRect, QEasingCurve
 
 import pyperclip
@@ -16,10 +27,50 @@ class NotesWindow(QMainWindow):
         self.ui.setupUi(self)
 
         self.ui.tabWidget.setTabPosition(QTabWidget.South)
+        self.tab_count = 0
 
+        self.create_menu_bar()
+
+    def create_menu_bar(self):
         self.setStatusBar(QStatusBar(self))
         menu = self.menuBar()
         file_menu = menu.addMenu("&File")
+
+        new_action = QAction("New tab", self)
+        new_action.setShortcut("Ctrl+N")
+        new_action.triggered.connect(self.add_new)
+        file_menu.addAction(new_action)
+
+        open_action = QAction("Open notes", self)
+        open_action.setShortcut("Ctrl+S")
+        open_action.triggered.connect(self.open_notes)
+        file_menu.addAction(open_action)
+
+        self.add_new()
+
+    def add_new(self):
+        new_tab = QWidget()
+        button = QPushButton("Close tab", new_tab)
+        button.clicked.connect(self.close_tab)
+        text_edit = QTextEdit(new_tab)
+        
+        # Create a layout for the new tab's contents
+        tab_layout = QVBoxLayout()
+        tab_layout.addWidget(button)
+        tab_layout.addWidget(text_edit)
+        
+        new_tab.setLayout(tab_layout)
+        
+        self.tab_count += 1
+        self.ui.tabWidget.addTab(new_tab, "Notes " + str(self.tab_count))
+
+    def close_tab(self):
+        current_tab = self.ui.tabWidget.currentIndex()
+        self.ui.tabWidget.removeTab(current_tab)
+
+    def open_notes(self):
+        pass
+        # TODO
 
 class MainWindow(QMainWindow):
     def __init__(self):

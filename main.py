@@ -3,7 +3,9 @@ from typing import Optional, Dict
 from PyQt5.QtWidgets import (QApplication, 
                              QMainWindow,
                              QToolButton, 
-                             QMenu, 
+                             QMenu,
+                             QInputDialog,
+                             QTextEdit
                              )
 
 from PyQt5.QtCore import Qt
@@ -98,6 +100,9 @@ class MainWindow(QMainWindow):
         self.ui.clear_history_button.clicked.connect(self.history_clear)
 
         self.ui.notes_button.clicked.connect(self.open_notes)
+
+        self.last_epxression = ""
+        self.ui.save_notes_button.clicked.connect(self.save_to_notes)
 
     def writing_buttons(self):
         """
@@ -244,6 +249,8 @@ class MainWindow(QMainWindow):
         if expression == "":
             return
 
+        self.last_epxression = expression
+
         result = evaluation(expression)
         self.ui.last_result_label.setText(result)
         self.ui.input_line.setText(result)
@@ -271,6 +278,35 @@ class MainWindow(QMainWindow):
         notes_window_y = self.geometry().top()
         self.note_window.setGeometry(notes_window_x, notes_window_y, self.note_window.width(), self.note_window.height())
         self.note_window.show()
+
+    def write_note_to_current_tab(self, text: str) -> None:
+        """
+        Note_window has to be opened. writes <text> to the curent tab.
+        """
+        current_index = self.note_window.ui.tabWidget.currentIndex()
+        text_edit: QTextEdit = self.note_window.text_edits_on_tabs[self.note_window.ui.tabWidget.tabText(current_index)]
+
+        previous_text = text_edit.toPlainText()
+
+        if previous_text == "" or previous_text[-1] == "\n":
+            text = previous_text + text
+        else:
+            text = previous_text + "\n" + text
+
+        text_edit.setText(text)
+
+    def save_to_notes(self):
+        if self.last_epxression == "":
+            return
+
+        text, pressed_OK = QInputDialog.getText(self, "Note text", "Text of the note: (last expression and the result will be added automatically)")
+
+        self.open_notes()
+
+        if not pressed_OK or self.note_window.ui.tabWidget.count() == 0:
+            return
+
+        self.write_note_to_current_tab("_" * 48 + "\n" + self.last_epxression + " =\n" + self.ui.last_result_label.text() + "\n" + text)
 
 if __name__ == "__main__":
     app = QApplication([])

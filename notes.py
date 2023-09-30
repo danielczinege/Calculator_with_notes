@@ -110,6 +110,9 @@ class NotesWindow(QMainWindow):
             self.save_notes()
 
     def close_all_without_saving_dial(self) -> bool:
+        if self.ui.tabWidget.count() == 0:
+            return True
+
         response = QMessageBox.question(self, "Don't save?", "If you close this window now all unsaved notes will be lost!\n\
 Do you really want to close the window without saving?",
                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)

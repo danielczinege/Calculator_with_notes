@@ -1,5 +1,29 @@
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
+import sys
+from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
+
+MAX_TEXT_LENGTH = 50
+
+class TextInputDialog(QtWidgets.QDialog):
+    def __init__(self, max_length):
+        super().__init__()
+
+        self.setWindowTitle("Text Input")
+        self.setFixedSize(300, 100)
+
+        self.label = QtWidgets.QLabel("Enter text: (at most " + str(max_length) + " characters)")
+        self.text_input = QtWidgets.QLineEdit()
+        self.text_input.setMaxLength(max_length)  # Set the maximum length
+        self.ok_button = QtWidgets.QPushButton("OK")
+
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(self.label)
+        layout.addWidget(self.text_input)
+        layout.addWidget(self.ok_button)
+
+        self.setLayout(layout)
+
+        self.ok_button.clicked.connect(self.accept)
 
 class Canvas(QtWidgets.QLabel):
     def __init__(self):
@@ -12,9 +36,19 @@ class Canvas(QtWidgets.QLabel):
 
         self.init_pixmap()
 
+        self.drawing_mode = True
+
         self.last_x, self.last_y = None, None
         self.pen_color = QtGui.QColor('#000000')
         self.current_width = 2
+
+        self.set_drawing_cursor()
+
+    def set_drawing_cursor(self):
+        self.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+
+    def set_writing_cursor(self):
+        self.setCursor(QtGui.QCursor(QtCore.Qt.IBeamCursor))
 
     def init_pixmap(self):
         self.pixmap = QtGui.QPixmap(self.size())
@@ -24,19 +58,33 @@ class Canvas(QtWidgets.QLabel):
     def set_pen_color(self, c):
         self.pen_color = QtGui.QColor(c)
 
+    def draw_rounded_line(self, painter, x1, y1, x2, y2):
+        p = painter.pen()
+        p.setWidth(self.current_width)
+        p.setColor(self.pen_color)
+        painter.setPen(p)
+
+        painter.drawLine(x1, y1, x2, y2)
+
+        # Draw circles at the endpoints for rounded ends
+        radius = self.current_width // 8
+        painter.setBrush(self.pen_color)
+        painter.drawEllipse(QtCore.QPoint(x1 - radius,y1), radius, radius)
+        painter.drawEllipse(QtCore.QPoint(x2 + radius,y2), radius, radius)
+
     def mouseMoveEvent(self, e):
+        if not self.drawing_mode:
+            return
+
         if self.last_x is None:
             self.last_x = e.x()
             self.last_y = e.y()
             return
 
         painter = QtGui.QPainter(self.pixmap)
-        p = painter.pen()
-        p.setWidth(self.current_width)
-        p.setColor(self.pen_color)
-        painter.setPen(p)
-        painter.drawLine(self.last_x, self.last_y, e.x(), e.y())
-        painter.end()
+
+        self.draw_rounded_line(painter, self.last_x, self.last_y, e.x(), e.y())
+
         self.setPixmap(self.pixmap)
         self.update()
 
@@ -46,6 +94,29 @@ class Canvas(QtWidgets.QLabel):
     def mouseReleaseEvent(self, e):
         self.last_x = None
         self.last_y = None
+
+    def draw_text(self, painter, text, x, y):
+        p = painter.pen()
+        p.setColor(self.pen_color)
+        painter.setPen(p)
+        font = painter.font()
+        font.setPointSize(20)
+        painter.setFont(font)
+        painter.drawText(x, y, text)
+
+    def mouseDoubleClickEvent(self, e):
+        if self.drawing_mode:
+            return
+
+        text_input_dialog = TextInputDialog(MAX_TEXT_LENGTH)
+        result = text_input_dialog.exec_()
+
+        if result == QtWidgets.QDialog.Accepted:
+            text = text_input_dialog.text_input.text()
+            painter = QtGui.QPainter(self.pixmap)
+            self.draw_text(painter, text, e.x(), e.y())
+            self.setPixmap(self.pixmap)
+            self.update()
 
 COLORS = [
 # 17 undertones https://lospec.com/palette-list/17undertones
@@ -76,6 +147,16 @@ class MainWindow(QtWidgets.QMainWindow):
         w.setLayout(l)
 
         palette = QtWidgets.QHBoxLayout()
+
+        self.switch_text_drawing = QtWidgets.QToolButton()
+        self.switch_text_drawing.setFixedSize(QtCore.QSize(24,24))
+        self.switch_text_drawing.setCheckable(True)
+        self.switch_text_drawing.setText("A")
+
+        self.switch_text_drawing.clicked.connect(self.change_mode)
+
+        palette.addWidget(self.switch_text_drawing)
+
         self.add_palette_buttons(palette)
 
         self.add_size_buttons(palette)
@@ -85,6 +166,14 @@ class MainWindow(QtWidgets.QMainWindow):
         l.addWidget(self.canvas)
 
         self.setCentralWidget(w)
+
+    def change_mode(self, checked):
+        if checked:
+            self.canvas.drawing_mode = False
+            self.canvas.set_writing_cursor()
+        else:
+            self.canvas.drawing_mode = True
+            self.canvas.set_drawing_cursor()
 
     def add_palette_buttons(self, layout):
         for c in COLORS:
@@ -98,7 +187,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def add_size_buttons(self, layout):
         for size in SIZES:
             b = QtWidgets.QPushButton()
-            b.setFixedSize(QtCore.QSize(size, size))
+            b.setFixedSize(QtCore.QSize(size + 1, size + 1))
             b.setStyleSheet("background-color: %s; padding: 10px; border: 8px solid %s;" % (BLACK, BLACK))
             b.pressed.connect(lambda size = size: self.set_size(size))
             layout.addWidget(b)

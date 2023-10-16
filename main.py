@@ -1,11 +1,12 @@
-from typing import Optional, Dict
+from typing import Optional
 
 from PyQt5.QtWidgets import (QApplication, 
                              QMainWindow,
                              QToolButton, 
                              QMenu,
                              QInputDialog,
-                             QTextEdit
+                             QTextEdit,
+                             QDesktopWidget
                              )
 
 from PyQt5.QtCore import Qt
@@ -15,6 +16,7 @@ import pyperclip
 from calculator_gui import Ui_MainWindow
 from my_eval import evaluation
 from notes import NotesWindow
+from drawing_notes import MainWindow as Drawings
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -23,6 +25,7 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
 
         self.note_window: Optional[NotesWindow] = None
+        self.drawing_window: Optional[Drawings] = None
 
         self.ui.zero_button.clicked.connect(self.writing_buttons)
         self.ui.one_button.clicked.connect(self.writing_buttons)
@@ -103,6 +106,8 @@ class MainWindow(QMainWindow):
 
         self.last_epxression = ""
         self.ui.save_notes_button.clicked.connect(self.save_to_notes)
+
+        self.ui.hand_notes_button.clicked.connect(self.open_drawings)
 
     def writing_buttons(self):
         """
@@ -307,6 +312,19 @@ class MainWindow(QMainWindow):
             return
 
         self.write_note_to_current_tab("_" * 48 + "\n" + self.last_epxression + " =\n" + self.ui.last_result_label.text() + "\n" + text)
+
+    def open_drawings(self):
+        if self.drawing_window is None or not self.drawing_window.isVisible():
+            self.drawing_window = Drawings()
+
+        if self.drawing_window.isMinimized():
+            self.drawing_window.showNormal()
+
+        drawing_window_x = min(self.geometry().right() + 5, max(QDesktopWidget().screenGeometry().width() - self.drawing_window.width(), 0))
+        drawing_window_y = self.geometry().top()
+        self.drawing_window.setGeometry(drawing_window_x, drawing_window_y, self.drawing_window.width(), self.drawing_window.height())
+        self.drawing_window.show()
+        self.drawing_window.resizeEvent(None)
 
 if __name__ == "__main__":
     app = QApplication([])

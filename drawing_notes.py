@@ -170,6 +170,25 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.create_menu_bar()
 
+    def closeEvent(self, event):
+        if self.close_without_saving_dial():
+            event.accept()
+        else:
+            event.ignore()
+
+    def close_without_saving_dial(self) -> bool:
+        response = QtWidgets.QMessageBox.question(self, "Don't save?", "If you close this window now all unsaved notes will be lost!\n\
+Do you really want to close the window without saving?",
+                                        QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No)
+
+        return response == QtWidgets.QMessageBox.Yes
+
+    def clear_notes_without_saving(self, text):
+        response = QtWidgets.QMessageBox.question(self, "Don't save?", text,
+                                                  QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.Yes)
+
+        return response == QtWidgets.QMessageBox.Yes
+
     def create_menu_bar(self):
         self.setStatusBar(QtWidgets.QStatusBar(self))
         menu = self.menuBar()
@@ -185,6 +204,10 @@ class MainWindow(QtWidgets.QMainWindow):
         save_action.triggered.connect(self.save_image)
         file_menu.addAction(save_action)
 
+        delete_action = QtWidgets.QAction('Clear notes', self)
+        delete_action.triggered.connect(self.delete_notes)
+        file_menu.addAction(delete_action)
+
     def save_image(self):
         options = QtWidgets.QFileDialog.Options()
         file_name, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save Image", "", "Images (*.png *.jpg);;PNG Images (*.png);;JPEG Images (*.jpg)",
@@ -193,6 +216,9 @@ class MainWindow(QtWidgets.QMainWindow):
             self.canvas.pixmap.save(file_name)
 
     def load_image(self):
+        if self.clear_notes_without_saving("Would you like to save the notes first before openning new ones?"):
+            self.save_image()
+
         options = QtWidgets.QFileDialog.Options()
         file_name, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Load Image", "", "Images (*.png *.jpg);;PNG Images (*.png);;JPEG Images (*.jpg)",
                                                              options=options)
@@ -203,6 +229,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.canvas.setPixmap(self.canvas.pixmap)
                 self.canvas.update()
                 self.resizeEvent(None)
+
+    def delete_notes(self):
+        if self.clear_notes_without_saving("Would you like to save current notes first before clearing them?"):
+            self.save_image()
+
+        self.canvas.init_pixmap()
 
     def change_mode(self, checked):
         if checked:

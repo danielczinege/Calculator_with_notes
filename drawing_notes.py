@@ -1,5 +1,5 @@
 import sys
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import Qt
 
 MAX_TEXT_LENGTH = 50
@@ -166,6 +166,43 @@ class MainWindow(QtWidgets.QMainWindow):
         l.addWidget(self.canvas)
 
         self.setCentralWidget(w)
+        self.setWindowTitle("Drawing notes")
+
+        self.create_menu_bar()
+
+    def create_menu_bar(self):
+        self.setStatusBar(QtWidgets.QStatusBar(self))
+        menu = self.menuBar()
+        file_menu = menu.addMenu("&File")
+
+        open_action = QtWidgets.QAction("Open notes", self)
+        open_action.setShortcut("Ctrl+O")
+        open_action.triggered.connect(self.load_image)
+        file_menu.addAction(open_action)
+
+        save_action = QtWidgets.QAction('Save notes', self)
+        save_action.setShortcut("Ctrl+S")
+        save_action.triggered.connect(self.save_image)
+        file_menu.addAction(save_action)
+
+    def save_image(self):
+        options = QtWidgets.QFileDialog.Options()
+        file_name, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save Image", "", "Images (*.png *.jpg);;PNG Images (*.png);;JPEG Images (*.jpg)",
+                                                             options=options)
+        if file_name:
+            self.canvas.pixmap.save(file_name)
+
+    def load_image(self):
+        options = QtWidgets.QFileDialog.Options()
+        file_name, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Load Image", "", "Images (*.png *.jpg);;PNG Images (*.png);;JPEG Images (*.jpg)",
+                                                             options=options)
+        if file_name:
+            image = QtGui.QImage(file_name)
+            if not image.isNull():
+                self.canvas.pixmap = QtGui.QPixmap.fromImage(image)
+                self.canvas.setPixmap(self.canvas.pixmap)
+                self.canvas.update()
+                self.resizeEvent(None)
 
     def change_mode(self, checked):
         if checked:

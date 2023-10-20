@@ -59,6 +59,9 @@ class Canvas(QtWidgets.QLabel):
         self.pen_color = QtGui.QColor(c)
 
     def draw_rounded_line(self, painter, x1, y1, x2, y2):
+        """
+        Draws line with filled circles at its ends.
+        """
         p = painter.pen()
         p.setWidth(self.current_width)
         p.setColor(self.pen_color)
@@ -171,6 +174,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.create_menu_bar()
 
     def closeEvent(self, event):
+        """
+        Changes the closing event of drawing notes window so that it closes only if
+        the user does not want to save anything.
+        """
         if self.close_without_saving_dial():
             event.accept()
         else:
@@ -231,12 +238,18 @@ Do you really want to close the window without saving?",
                 self.resizeEvent(None)
 
     def delete_notes(self):
+        """
+        Asks if the user does not want to save the notes first and if they want saves them and cleares the canvas.
+        """
         if self.clear_notes_without_saving("Would you like to save current notes first before clearing them?"):
             self.save_image()
 
         self.canvas.init_pixmap()
 
     def change_mode(self, checked):
+        """
+        Changes between drawing and writing mode.
+        """
         if checked:
             self.canvas.drawing_mode = False
             self.canvas.set_writing_cursor()
@@ -262,6 +275,9 @@ Do you really want to close the window without saving?",
             layout.addWidget(b)
 
     def resizeEvent(self, event):
+        """
+        When the window is resized this method resizes the canvas as well.
+        """
         super().resizeEvent(event)
 
         current_pixmap = self.canvas.pixmap

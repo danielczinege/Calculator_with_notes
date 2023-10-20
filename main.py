@@ -250,6 +250,10 @@ class MainWindow(QMainWindow):
             self.ui.log_button.setText("ln")
 
     def evaluate(self):
+        """
+        Evaluates what is written in <input_line>, updates history and writes the result to
+        <input_line> and <last_result_label>.
+        """
         expression = self.ui.input_line.text()
         if expression == "":
             return
@@ -272,6 +276,10 @@ class MainWindow(QMainWindow):
         self.ui.history.setText("")
 
     def open_notes(self):
+        """
+        Opens the window with notes and puts it to the left of the calculator window.
+        If it is already opened it is just put to the left of the calculator window.
+        """
         if self.note_window is None or not self.note_window.isVisible():
             self.note_window = NotesWindow()
             self.note_window.setWindowTitle("Notes")
@@ -301,6 +309,10 @@ class MainWindow(QMainWindow):
         text_edit.setText(text)
 
     def save_to_notes(self):
+        """
+        Saves last result to the notes (if they are not open yet this opens them) and asks
+        the user for some describtion of what is this result. 
+        """
         if self.last_epxression == "":
             return
 
@@ -314,6 +326,10 @@ class MainWindow(QMainWindow):
         self.write_note_to_current_tab("_" * 48 + "\n" + self.last_epxression + " =\n" + self.ui.last_result_label.text() + "\n" + text)
 
     def open_drawings(self):
+        """
+        Opens the window with drawing notes and puts it to the right of the calculator window.
+        If it is already opened it is just put to the right of the calculator window.
+        """
         if self.drawing_window is None or not self.drawing_window.isVisible():
             self.drawing_window = Drawings()
 

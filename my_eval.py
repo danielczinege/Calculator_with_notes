@@ -369,7 +369,7 @@ def eval_div(x: float, y: float) -> Tuple[float, str]:
 
 def eval_pow(x: Union[int, float], y: Union[int, float]) -> Tuple[float, str]:
     if x == 0 and y == 0:
-        return 0, "Undifined"
+        return 0, "Undefined"
 
     if isinstance(y, int):
         if y >= 0:
@@ -439,6 +439,11 @@ def eval_binary_function(root: Ast_node) -> Tuple[Union[int, float], str]:
     return BINARY_FUNCTIONS[root.token.value](x, y)
 
 def evaluate_ast(root: Ast_node) -> Tuple[Union[int, float], str]:
+    """
+    Evaluates expression represented by AST with root node equal to <root> and
+    tries to return int if possible or if not then returns float. And the second
+    coordinate of the tuple is the error that occured or empty string if no error.
+    """
     if root.number is not None:
         return root.number, ""
 

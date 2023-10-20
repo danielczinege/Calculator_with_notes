@@ -29,6 +29,10 @@ class NotesWindow(QMainWindow):
         self.create_menu_bar()
 
     def closeEvent(self, event):
+        """
+        Changes the closing event of notes window so that it closes only if
+        the user does not want to save anything.
+        """
         if self.close_all_without_saving_dial():
             event.accept()
         else:
@@ -57,6 +61,9 @@ class NotesWindow(QMainWindow):
         self.add_new()
 
     def add_new(self):
+        """
+        Adds a new tab. To notes window (it must be open).
+        """
         new_tab = QWidget()
         button = QPushButton("Close tab", new_tab)
         button.clicked.connect(self.close_tab)
@@ -76,6 +83,9 @@ class NotesWindow(QMainWindow):
         self.text_edits_on_tabs[name] = text_edit
 
     def open_notes(self):
+        """
+        Asks which text file the user wants to open and creates new tab with its contents (But no more than <BYTES_TO_READ> bytes).
+        """
         options = QFileDialog.Options()
         file_name, _ = QFileDialog.getOpenFileName(self, "Open File", "", "Text Files (*.txt)", options=options)
 
@@ -87,6 +97,9 @@ class NotesWindow(QMainWindow):
                 self.text_edits_on_tabs[name].setPlainText(text)
 
     def save_notes(self):
+        """
+        Asks a user where they want to save it and saves the current tab to a text file.
+        """
         if self.ui.tabWidget.count() == 0:
             return
 
@@ -103,6 +116,10 @@ class NotesWindow(QMainWindow):
                 file.write(text)
 
     def close_without_saving_dial(self):
+        """
+        Asks if the user wants to to close the tab without saving.
+        And if they say no the notes will be saved.
+        """
         response = QMessageBox.question(self, "Don't save?", 'Are you sure you want to close the tab without saving?',
                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
@@ -110,6 +127,9 @@ class NotesWindow(QMainWindow):
             self.save_notes()
 
     def close_all_without_saving_dial(self) -> bool:
+        """
+        Asks if the user wants to just close without doing anything and returns True if they say Yes.
+        """
         if self.ui.tabWidget.count() == 0:
             return True
 
@@ -120,6 +140,9 @@ Do you really want to close the window without saving?",
         return response == QMessageBox.Yes
 
     def close_tab(self):
+        """
+        Closes tab, but calls close_without_saving_dial
+        """
         current_tab = self.ui.tabWidget.currentIndex()
 
         self.close_without_saving_dial()
